@@ -61,8 +61,8 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Tratamento de exceções na conexão ao servidor
 try:
-    # Substitua 'ENDEREÇO_IP_DO_RELAY_SERVER' pelo IP correto do Relay Server
-    client.connect(('ENDEREÇO_IP_DO_RELAY_SERVER', 5555))
+    # Substitua 'IP_DO_SERVIDOR_LOCAL' pelo IP correto do servidor local
+    client.connect(('IP_DO_SERVIDOR_LOCAL', 5555))
     client.send(username.encode('utf-8'))  # Enviar nome de usuário ao servidor
 except ConnectionRefusedError:
     messagebox.showerror("Erro de Conexão", "Falha ao conectar ao servidor. Verifique o IP e a porta e tente novamente.")
