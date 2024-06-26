@@ -9,8 +9,11 @@ def receive():
         try:
             message = client.recv(1024).decode('utf-8')
             if message:
+                print(f"Mensagem recebida: {message}")  # Logs
                 message_list.insert(END, message)
+                message_list.yview(END)  # Auto-scroll para a última mensagem
         except OSError:  # Cliente foi desconectado
+            print("Cliente desconectado")
             break
 
 # Função para enviar mensagens ao servidor
@@ -18,13 +21,17 @@ def send(event=None):
     try:
         message = my_message.get()
         my_message.set("")
-        client.send(f"{username}: {message}".encode('utf-8'))
+        formatted_message = f"Eu: {message}"
+        message_list.insert(END, formatted_message)
+        message_list.yview(END)  # Auto-scroll para a última mensagem
+        client.send(message.encode('utf-8'))
+        print(f"Mensagem enviada: {message}")  # Logs
     except OSError:  # Caso de erro no envio
         messagebox.showerror("Erro", "Falha ao enviar a mensagem. Conexão perdida.")
 
 # Função para fechar a janela do cliente e desconectar
 def on_closing(event=None):
-    my_message.set("QUIT")
+    my_message.set("saiu do chat!")
     send()
     client.close()
     root.quit()
@@ -35,7 +42,7 @@ root.title("Chat Cliente")
 
 messages_frame = Frame(root)
 my_message = StringVar()
-my_message.set("Digite sua mensagem...")
+my_message.set("")
 scrollbar = Scrollbar(messages_frame)
 message_list = Listbox(messages_frame, height=15, width=50, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=RIGHT, fill=Y)
@@ -61,9 +68,9 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Tratamento de exceções na conexão ao servidor
 try:
-    # Substitua 'ENDEREÇO_IP_DO_RELAY_SERVER' pelo IP correto do Relay Server
-    client.connect(('ENDEREÇO_IP_DO_RELAY_SERVER', 5555))
+    client.connect(('127.0.0.1', 5555))  # Use o IP do servidor
     client.send(username.encode('utf-8'))  # Enviar nome de usuário ao servidor
+    print(f"Conectado no servidor como {username}")  # Log
 except ConnectionRefusedError:
     messagebox.showerror("Erro de Conexão", "Falha ao conectar ao servidor. Verifique o IP e a porta e tente novamente.")
     root.quit()

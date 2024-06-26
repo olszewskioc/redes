@@ -12,12 +12,13 @@ def handle_client(client_socket, client_address):
         while True:
             message = client_socket.recv(1024).decode('utf-8')
             if message:
-                print(f"Received from {username}: {message}")
-                broadcast(message, client_socket)
+                print(f"Mensagem recebida | {username}: {message}")
+                broadcast(f"{username}: {message}", client_socket)
             else:
                 remove(client_socket)
                 break
-    except:
+    except Exception as e:
+        print(f"Erro ao lidar com cliente {client_address}: {e}")
         remove(client_socket)
 
 # Função para enviar mensagem a todos os clientes
@@ -26,7 +27,9 @@ def broadcast(message, connection):
         if client != connection:
             try:
                 client.send(message.encode('utf-8'))
-            except:
+                print(f"Mensagem enviada para {clients[client]}")
+            except Exception as e:
+                print(f"Erro ao enviar mensagem: {e}")
                 remove(client)
 
 # Função para remover cliente da lista
@@ -41,11 +44,14 @@ clients = {}
 # Configurações do servidor
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('0.0.0.0', 5555))
-server.listen(2)
+server.listen(5)  # Aumentei o limite de conexões pendentes
 
-print("Relay Server iniciado...")
+print("Servidor iniciado iniciado...")
 
 # Aceitar conexões de clientes
 while True:
-    client_socket, addr = server.accept()
-    threading.Thread(target=handle_client, args=(client_socket, addr)).start()
+    try:
+        client_socket, addr = server.accept()
+        threading.Thread(target=handle_client, args=(client_socket, addr)).start()
+    except Exception as e:
+        print(f"Erro ao aceitar conexão: {e}")
