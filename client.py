@@ -10,6 +10,7 @@ def receive():
             message = client.recv(1024).decode('utf-8')
             if message:
                 message_list.insert(END, message)
+                message_list.yview(END)
         except OSError:  # Cliente foi desconectado
             break
 
@@ -18,7 +19,10 @@ def send(event=None):
     try:
         message = my_message.get()
         my_message.set("")
-        client.send(f"{username}: {message}".encode('utf-8'))
+        formatted_message = f"Eu: {message}"
+        message_list.insert(END, formatted_message)
+        message_list.yview(END)
+        client.send(f"{message}".encode('utf-8'))
     except OSError:  # Caso de erro no envio
         messagebox.showerror("Erro", "Falha ao enviar a mensagem. Conexão perdida.")
 
@@ -62,7 +66,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Tratamento de exceções na conexão ao servidor
 try:
     # Substitua 'IP_DO_SERVIDOR_LOCAL' pelo IP correto do servidor local
-    client.connect(('IP_DO_SERVIDOR_LOCAL', 5555))
+    client.connect(('192.168.7.2', 8080))
     client.send(username.encode('utf-8'))  # Enviar nome de usuário ao servidor
 except ConnectionRefusedError:
     messagebox.showerror("Erro de Conexão", "Falha ao conectar ao servidor. Verifique o IP e a porta e tente novamente.")
